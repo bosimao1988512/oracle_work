@@ -1,0 +1,70 @@
+利用视图dba_hist_seg_stat和dba_hist_seg_stat_obj分析数据库对象的增量
+
+SELECT
+	ss.SNAP_ID,
+	to_char(ss.BEGIN_INTERVAL_TIME, 'YYYY-MM-DD HH24:MI:SS') BEGIN_INTERVAL_TIME,
+	hsso.TABLESPACE_NAME,
+	hsso.object_name,
+	hsso.object_type,
+	round(hss.SPACE_ALLOCATED_TOTAL / 1048576) SPACE_TOTAL_size_mb,
+	round(hss.SPACE_ALLOCATED_DELTA / 1048576) SPACE_ALLOCATED_DELTA_size_mb
+FROM
+	dba_hist_snapshot ss,
+	DBA_HIST_SEG_STAT_OBJ hsso,
+	DBA_HIST_SEG_STAT hss
+WHERE
+	ss.SNAP_ID = hss.SNAP_ID
+	AND hss.OBJ#= hsso.obj#
+	AND hsso.ts#= hss.ts#
+  
+  或
+  
+  SELECT
+	a.name,
+	b.*
+FROM
+	v$tablespace a,
+	(
+	SELECT
+		tablespace_id, trunc(to_date(rtime, 'mm/dd/yyyy hh24:mi:ss')) datetime, round(max(tablespace_usedsize * 8 / 1024), 2) used_size_MB
+	FROM
+		dba_hist_tbspc_space_usage
+	WHERE
+		trunc(to_date(rtime, 'mm/dd/yyyy hh24:mi:ss')) > trunc(sysdate - 7)
+	GROUP BY
+		tablespace_id, trunc(to_date(rtime, 'mm/dd/yyyy hh24:mi:ss'))) b
+WHERE
+	a.ts# = b.tablespace_id
+ORDER BY
+	a.NAME
+  
+  或
+  
+  SELECT
+	a.snap_id,
+	c.tablespace_name ts_name,
+	a.rtime,
+	round(a.tablespace_size * c.block_size / 1024 / 1024, 2) ts_size_mb,
+	round(a.tablespace_usedsize * c.block_size / 1024 / 1024, 2) ts_used_mb,
+	round((a.tablespace_size - a.tablespace_usedsize) * c.block_size / 1024 / 1024, 2) ts_free_mb,
+	round(a.tablespace_usedsize / a.tablespace_size * 100, 2) pct_used
+FROM
+	dba_hist_tbspc_space_usage a,
+	(
+	SELECT
+		tablespace_id, substr(rtime, 1, 10) rtime, max(snap_id) snap_id
+	FROM
+		dba_hist_tbspc_space_usage nb
+	GROUP BY
+		tablespace_id, substr(rtime, 1, 10)) b,
+	dba_tablespaces c,
+	v$tablespace d
+WHERE
+	a.snap_id = b.snap_id
+	AND a.tablespace_id = b.tablespace_id
+	AND a.tablespace_id = d.TS#
+	AND d.NAME = c.tablespace_name
+	AND to_date(a.rtime, 'mm/dd/yyyy hh24:mi:ss') >= sysdate-7
+ORDER BY
+	a.tablespace_id,
+	a.rtime DESC;
