@@ -1,0 +1,64 @@
+SELECT
+	d.tablespace_name,
+	ROUND(a.bytes / 1024 / 1024,2) "分配总大小 (M)",
+	ROUND(t.hwm/1024/1024,2) "高水位(M)",
+	ROUND(t.bytes/1024/1024,2) "扩展大小(M)"
+FROM
+	dba_tablespaces d,
+	(
+	SELECT
+		tablespace_name, sum(bytes) bytes
+	FROM
+		dba_temp_files
+	GROUP BY
+		tablespace_name) a,
+	(
+	SELECT
+		tablespace_name, sum(bytes_cached) hwm, sum(bytes_used) bytes
+	FROM
+		v$temp_extent_pool
+	GROUP BY
+		tablespace_name) t
+WHERE
+	d.tablespace_name = a.tablespace_name(+)
+	AND d.tablespace_name = t.tablespace_name(+)
+	AND d.extent_management LIKE 'LOCAL'
+	AND d.contents LIKE 'TEMPORARY';
+
+
+SELECT
+	v.SID,
+	v.SERIAL#,
+	v.STATUS,
+	v.ACTION,
+	v.MACHINE,
+	v.MODULE,
+	v.OSUSER,
+	v.TERMINAL,
+	v.PROGRAM,
+	v.SQL_ID,
+	SUM(blocks) * 8 / 1024 "sums(M)",
+	(
+	SELECT
+		round(SUM(bytes) / 1024 / 1024, 2)
+	FROM
+		v$tempfile) "sizes(M)",
+	round((SUM(blocks) * 8 / (1024)) / (SELECT SUM(bytes) / (1024 * 1024) FROM v$tempfile), 3) temp表空间占用情况
+FROM
+	v$tempseg_usage t,
+	v$session v
+WHERE
+	t.SESSION_ADDR = v.SADDR
+GROUP BY
+	v.SID,
+	v.SERIAL#,
+	v.STATUS,
+	v.ACTION,
+	v.MACHINE,
+	v.MODULE,
+	v.OSUSER,
+	v.TERMINAL,
+	v.PROGRAM,
+	v.SQL_ID
+ORDER BY
+	"sums(M)" DESC
