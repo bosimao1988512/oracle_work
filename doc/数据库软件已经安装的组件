@@ -1,0 +1,13 @@
+SELECT
+	comp_id ,
+	comp_name ,
+	version ,
+	status ,
+	modified ,
+	control ,
+	SCHEMA ,
+	PROCEDURE
+FROM
+	dba_registry
+ORDER BY
+	comp_name;
