@@ -1,12 +1,14 @@
+
 SELECT
-	ddf.TABLESPACE_NAME ,
-	Sum(ddf.bytes) / 1024 / 1024 Total_MB, -- 仅仅标识已分配的空间大小，在自动扩展数据文件中，这种计算方式并不准确
-	Sum(dfs.bytes) / 1024 / 1024 AS Free_MB,
-	Round(( 1 - dfs.bytes / ddf.bytes ) * 100, 2) || '%' AS Used_Pct
-FROM
-	dba_free_space dfs,
-	dba_data_files ddf
-WHERE
-	dfs.TABLESPACE_NAME = ddf.TABLESPACE_NAME
-GROUP BY
-	ddf.TABLESPACE_NAME
+c.TABLESPACE_NAME "表空间名",
+c.AUTOEXTENSIBLE "扩展状态",
+a.Total_GB "可用总空间",
+a.allocation_GB "已分配空间",
+b.Free_GB "已分配未使用空间",
+Round(( 1 - b.Free_GB / a.allocation_GB ) * 100, 2) || '%' "已分配空间使用率"
+FROM 
+(SELECT TABLESPACE_NAME, ROUND(Sum(BYTES) / 1024 / 1024 / 1024, 2) allocation_GB,ROUND(Sum(MAXBYTES) / 1024 / 1024 / 1024, 2) Total_GB FROM DBA_DATA_FILES GROUP BY TABLESPACE_NAME) a,
+(SELECT TABLESPACE_NAME, ROUND(Sum(BYTES) / 1024 / 1024 / 1024, 2) Free_GB FROM dba_free_space GROUP BY TABLESPACE_NAME) b,
+DBA_DATA_FILES c
+WHERE c.TABLESPACE_NAME =a.TABLESPACE_NAME
+AND c.TABLESPACE_NAME =b.TABLESPACE_NAME
