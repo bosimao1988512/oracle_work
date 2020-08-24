@@ -1,0 +1,4 @@
+select userenv('language') from dual;
+
+
+select * from nls_database_parameters where parameter='NLS_CHARACTERSET';
