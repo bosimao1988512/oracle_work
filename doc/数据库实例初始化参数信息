@@ -1,0 +1,16 @@
+SELECT
+	p.isdefault,
+	p.name ,
+	i.instance_name ,
+	p.value ,
+	p.DISPLAY_VALUE ,
+	p.issys_modifiable,
+	p.ISDEPRECATED,
+	p.DESCRIPTION
+FROM
+	gv$parameter p ,
+	gv$instance i
+WHERE
+	p.inst_id = i.inst_id
+ORDER BY
+	p.name , i.instance_name;
