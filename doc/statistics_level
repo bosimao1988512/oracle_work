@@ -1,0 +1,10 @@
+SELECT
+	s.statistics_name,
+	s.DESCRIPTION ,
+	s.session_status,
+	s.system_status ,
+	s.activation_level,
+	s.statistics_view_name,
+	session_settable
+FROM
+	gv$statistics_level s 
