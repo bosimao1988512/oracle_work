@@ -1,0 +1,4 @@
+--文本文件
+select value from v$diag_info where name='Diag Trace';
+--xml文件
+select value from v$diag_info where name='Diag Alert';
