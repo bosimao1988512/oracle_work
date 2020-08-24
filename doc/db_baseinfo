@@ -1,0 +1,10 @@
+select
+	d.INST_ID,
+	d.DBID,
+	d.NAME,
+	d.DATABASE_ROLE,
+	TO_CHAR(d.CREATED, 'yyyy-mm-dd HH24:mi:ss') CREATED,
+	d.LOG_MODE,
+	d.OPEN_MODE
+from
+	gv$database d;
