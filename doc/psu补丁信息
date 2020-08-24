@@ -1,0 +1,8 @@
+SELECT d.action_time,
+       d.action,
+       d.namespace,
+       d.id,
+       d.bundle_series,
+       d.comments
+  FROM DBA_REGISTRY_HISTORY d
+order by d.action_time;
