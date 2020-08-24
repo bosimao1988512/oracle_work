@@ -1,0 +1,27 @@
+SELECT
+	r.name,
+	rssize / 1024 / 1024 / 1024 "RSSize(G)",
+	s.sid,
+	s.serial#,
+	s.username,
+	s.status,
+	s.sql_hash_value,
+	s.SQL_ADDRESS,
+	s.MACHINE,
+	s.MODULE,
+	s.program,
+	r.usn,
+	hwmsize / 1024 / 1024 / 1024 "hwmsize(G)",
+	shrinks ,
+	xacts
+FROM
+	v$session s,
+	v$transaction t,
+	v$rollname r,
+	v$rollstat rs
+WHERE
+	t.addr = s.taddr
+	AND t.xidusn = r.usn 
+	AND r.usn = rs.USN
+ORDER BY
+	rssize DESC;
