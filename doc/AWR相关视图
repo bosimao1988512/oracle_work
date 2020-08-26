@@ -1,0 +1,5 @@
+DBA_HIST_WR_CONTROL：查看当前快照收集的相关设置
+v$active_session_history:由ASH自动在内存中维护，以每秒一次的频率收集当前系统中活动session的信息
+dba_hist_active_sess_history:是视图v$active_session_history的历史数据，保存在硬盘上
+dba_hist_database_instance:显示数据库是实例的信息
+dba_hist_snapshot:当前数据库收集到的快照信息
