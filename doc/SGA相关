@@ -1,0 +1,52 @@
+SELECT
+	i.instance_name ,
+	sdc.component ,
+	sdc.current_size ,
+	sdc.min_size ,
+	sdc.max_size ,
+	sdc.user_specified_size ,
+	sdc.oper_count ,
+	sdc.last_oper_type ,
+	sdc.last_oper_mode ,
+	NVL(TO_CHAR(sdc.last_oper_time, 'yyyy-mm-dd HH24:MI:SS'), '<br>') last_oper_time ,
+	sdc.granule_size
+FROM
+	gv$sga_dynamic_components sdc ,
+	gv$instance i
+ORDER BY
+	i.instance_name ,
+	sdc.component DESC;
+
+
+SELECT
+	i.instance_name,
+	s.name,
+	s.value value
+FROM
+	gv$sga s,
+	gv$instance i
+WHERE
+	s.inst_id = i.inst_id
+ORDER BY
+	i.instance_name,
+	s.value DESC;
+
+
+SELECT
+	i.instance_name,
+	p.name name ,
+	(
+CASE
+		p.name WHEN 'sga_max_size' THEN TO_CHAR(p.value)
+		WHEN 'sga_target' THEN TO_CHAR(p.value)
+		ELSE p.value
+	END) value
+FROM
+	gv$parameter p ,
+	gv$instance i
+WHERE
+	p.inst_id = i.inst_id
+	AND p.name IN ('sga_max_size', 'sga_target')
+ORDER BY
+	i.instance_name ,
+	p.name;
