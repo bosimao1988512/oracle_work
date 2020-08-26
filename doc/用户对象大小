@@ -1,0 +1,19 @@
+SELECT
+	d.owner,
+	round(sum(bytes)/ 1024 / 1024, 2) sizes_M
+FROM
+	dba_segments d
+WHERE
+	d.segment_type NOT LIKE '%UNDO%'
+	AND NOT EXISTS (
+	SELECT
+		1
+	FROM
+		dba_recyclebin nb
+	WHERE
+		nb.owner = d.owner
+		AND nb.object_name = d.segment_name)
+GROUP BY
+	d.owner
+ORDER BY
+	2 DESC
