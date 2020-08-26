@@ -1,0 +1,20 @@
+-- 物理读前10的SQL
+SELECT *
+FROM (
+SELECT sql_fulltext AS sql, SQL_ID,disk_reads / executions AS "Reads/Exec",disk_reads, executions
+FROM V$SQLAREA
+WHERE disk_reads > 1000
+ORDER BY "Reads/Exec" DESC
+)
+WHERE rownum <= 10;
+
+
+-- 逻辑读前10的SQL
+SELECT *
+FROM (
+SELECT sql_fulltext AS sql, SQL_ID,buffer_gets / executions AS "Gets/Exec",buffer_gets, executions
+FROM V$SQLAREA
+WHERE buffer_gets > 10000
+ORDER BY "Gets/Exec" DESC
+)
+WHERE rownum <= 10;
