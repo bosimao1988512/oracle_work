@@ -1,0 +1,8 @@
+SELECT
+	OWNER ,
+	NAME ,
+	TYPE ,
+	SEQUENCE ,
+	TEXT 
+FROM
+	dba_errors
