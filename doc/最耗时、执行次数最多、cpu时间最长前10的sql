@@ -1,0 +1,53 @@
+-- cup执行时间前10的sql
+SELECT
+	cpu_time,
+	sql_text 
+FROM
+	( SELECT sql_text, cpu_time, RANK ( ) OVER ( ORDER BY cpu_time DESC ) exec_rank FROM v$sql ) 
+WHERE
+	exec_rank <= 10;
+
+
+--执行次数前10的sql
+SELECT
+	* 
+FROM
+	(
+	SELECT
+		s.SQL_TEXT,
+		s.EXECUTIONS "执行次数",
+		s.PARSING_USER_ID "用户名",
+		RANK ( ) OVER ( ORDER BY EXECUTIONS DESC ) EXEC_RANK 
+	FROM
+		v$sql s
+		LEFT JOIN all_users u ON u.USER_ID = s.PARSING_USER_ID 
+	) t 
+WHERE
+	exec_rank <= 100;
+
+
+-- 耗时前10的sql
+SELECT
+	* 
+FROM
+	(
+	SELECT
+		sa.SQL_TEXT,
+		sa.SQL_FULLTEXT,
+		sa.EXECUTIONS "执行次数",
+		round( sa.ELAPSED_TIME / 1000000, 2 ) "总执行时间",
+		round( sa.ELAPSED_TIME / 1000000 / sa.EXECUTIONS, 2 ) "平均执行时间",
+		sa.COMMAND_TYPE,
+		sa.PARSING_USER_ID "用户ID",
+		u.username "用户名",
+		sa.HASH_VALUE 
+	FROM
+		v$sqlarea sa
+		LEFT JOIN all_users u ON sa.PARSING_USER_ID = u.user_id 
+	WHERE
+		sa.EXECUTIONS > 0 
+	ORDER BY
+		( sa.ELAPSED_TIME / sa.EXECUTIONS ) DESC 
+	) 
+WHERE
+	ROWNUM <= 10;
