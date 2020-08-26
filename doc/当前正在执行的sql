@@ -1,0 +1,4 @@
+select a.username,a.machine,a.PROGRAM, a.sid,b.FIRST_LOAD_TIME,b.SQL_TEXT --, b.SQL_FULLTEXT
+ from v$session a, v$sqlarea b 
+where a.sql_address = b.address;
+-- a.sql_hash_value = b.hash_value;
