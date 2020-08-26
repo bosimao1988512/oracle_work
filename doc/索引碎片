@@ -1,0 +1,8 @@
+-- 索引删除行数除以索引总行数的百分比>30%即认为索引碎片大，也就是需要重建的索引
+
+select name,
+       del_lf_rows,
+       lf_rows,
+       round(del_lf_rows / decode(lf_rows, 0, 1, lf_rows) * 100, 0) || '%' frag_pct
+  from index_stats
+ where round(del_lf_rows / decode(lf_rows, 0, 1, lf_rows) * 100, 0) > 30;
