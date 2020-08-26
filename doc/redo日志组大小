@@ -1,0 +1,15 @@
+SELECT
+	a.group#,
+	a.THREAD#,
+	a.SEQUENCE#,
+	bytes / 1024 / 1024 size_m,
+	a.status,
+	a.ARCHIVED,
+	a.MEMBERS,
+	b.MEMBER,
+	b.TYPE
+FROM
+	v$log a,
+	v$logfile b
+WHERE
+	b.GROUP# = a.GROUP#
