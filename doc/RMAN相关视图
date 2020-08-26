@@ -1,0 +1,5 @@
+v$backup_set
+v$backup_files
+v$backup_datafile
+v$backup_piece
+v$backup_spfile
