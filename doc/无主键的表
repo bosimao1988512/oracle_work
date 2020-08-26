@@ -1,0 +1,16 @@
+SELECT
+	d.OWNER,
+	d.TABLE_NAME
+FROM
+	dba_TABLES d
+WHERE
+	NOT EXISTS (
+	SELECT
+		1
+	FROM
+		dba_constraints dc
+	WHERE
+		dc.constraint_type = 'P'
+		AND dc.table_name = d.TABLE_NAME
+		AND dc.owner = d.OWNER)
+	AND D.NUM_ROWS >= 10000
