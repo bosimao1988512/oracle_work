@@ -16,37 +16,3 @@ FROM
 ORDER BY
 	i.instance_name ,
 	sdc.component DESC;
-
-
-SELECT
-	i.instance_name,
-	s.name,
-	s.value value
-FROM
-	gv$sga s,
-	gv$instance i
-WHERE
-	s.inst_id = i.inst_id
-ORDER BY
-	i.instance_name,
-	s.value DESC;
-
-
-SELECT
-	i.instance_name,
-	p.name name ,
-	(
-CASE
-		p.name WHEN 'sga_max_size' THEN TO_CHAR(p.value)
-		WHEN 'sga_target' THEN TO_CHAR(p.value)
-		ELSE p.value
-	END) value
-FROM
-	gv$parameter p ,
-	gv$instance i
-WHERE
-	p.inst_id = i.inst_id
-	AND p.name IN ('sga_max_size', 'sga_target')
-ORDER BY
-	i.instance_name ,
-	p.name;
